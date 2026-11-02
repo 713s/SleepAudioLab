@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Personal recordings and derived private data
+data/raw/
+data/processed/
+data/labels/
+reports/
+*.wav
+*.flac
+*.m4a
+*.mp3
+
+# Local/editor files
+.vscode/
+.idea/
+.DS_Store
