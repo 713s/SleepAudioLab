@@ -47,7 +47,7 @@ For the first stages, the phone is only a recorder. Analysis is performed on the
 | Version | Engineering goal | Mathematics / algorithms |
 | --- | --- | --- |
 | v0.1 | Read audio, inspect metadata, draw waveform | sampling, discrete-time signals |
-| v0.2 | FFT and power spectrum | Fourier transform, Parseval identity |
+| **v0.2** | **DFT/FFT experiments and power-spectrum foundations** | **Fourier basis, leakage, Nyquist, aliasing, Parseval** |
 | v0.3 | STFT and overnight spectrogram | windowing, time-frequency resolution |
 | v0.4 | RMS/ZCR/spectral features | descriptive and robust statistics |
 | v0.5 | Generic sound-event candidates | thresholding, envelope, change detection |
@@ -78,31 +78,64 @@ SleepAudioLab/
 
 Raw personal sleep recordings should remain local and are excluded from Git by default.
 
-## v0.1
-
-The first executable milestone is deliberately small:
-
-```text
-audio file
-   -> read metadata
-   -> convert to mono floating-point signal
-   -> draw waveform
-   -> compute and draw an STFT spectrogram
-```
-
-Install in a virtual environment:
+## Install
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e '.[dev]'
 ```
 
-Then inspect a recording:
+Run tests:
+
+```bash
+pytest
+```
+
+## v0.1 — inspect an audio recording
 
 ```bash
 sleep-audio inspect path/to/test.wav --out reports/test
 ```
+
+This produces a waveform, an STFT spectrogram, and a small JSON summary.
+
+## v0.2 — learn Fourier analysis from the definition
+
+The v0.2 code contains a direct \(O(N^2)\) implementation of the DFT,
+
+\[
+X_k=\sum_{n=0}^{N-1}x_n e^{-2\pi i kn/N},
+\]
+
+plus an inverse DFT and NumPy FFT comparison tests. The notes are in:
+
+```text
+docs/mathematics/02_fourier_transform.md
+```
+
+Generate the experiments:
+
+```bash
+python -m sleep_audio.fourier_demo --out reports/fourier_demo
+```
+
+Outputs:
+
+```text
+reports/fourier_demo/
+├── bin_aligned_sine.png
+├── spectral_leakage.png
+├── aliasing.png
+└── parseval.json
+```
+
+The experiments are designed to answer four concrete questions:
+
+1. Why does a sinusoid on an exact DFT bin produce a sharp spectral line?
+2. Why does a slightly off-bin sinusoid leak into neighboring frequencies?
+3. Why can a sampled 700 Hz sinusoid at 1000 Hz sampling appear as 300 Hz?
+4. Why does Parseval's identity give the same total energy in time and frequency domains?
 
 ## Development principles
 
