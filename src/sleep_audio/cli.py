@@ -77,6 +77,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output directory",
     )
 
+    night = subparsers.add_parser(
+        "overnight", help="Stream an overnight recording into acoustic event and hourly reports"
+    )
+    night.add_argument("audio", type=Path)
+    night.add_argument("--out", type=Path, default=Path("reports/overnight"))
+    night.add_argument("--quiet-min", type=float, default=10.)
+    night.add_argument("--event-min", type=float, default=2.)
+    night.add_argument("--merge-gap", type=float, default=1.)
+
     return parser
 
 
@@ -84,6 +93,12 @@ def main() -> None:
     args = build_parser().parse_args()
     if args.command == "inspect":
         inspect_audio(args.audio, args.out)
+    elif args.command == "overnight":
+        from .overnight import analyze_overnight
+        result = analyze_overnight(
+            args.audio, args.out, quiet_min_seconds=args.quiet_min,
+            event_min_seconds=args.event_min, merge_gap_seconds=args.merge_gap)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
