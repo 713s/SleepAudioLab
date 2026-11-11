@@ -4,8 +4,10 @@ on:
   push:
     paths:
       - "src/sleep_audio/overnight.py"
+      - "src/sleep_audio/overnight_model.py"
       - "src/sleep_audio/cli.py"
       - "tests/test_overnight.py"
+      - "tests/test_overnight_model.py"
       - ".github/workflows/test-overnight.yml"
   workflow_dispatch:
 
@@ -22,4 +24,4 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install -e '.[dev]'
       - name: Test end-to-end night report using generated WAV only
-        run: pytest -q tests/test_overnight.py
+        run: pytest -q tests/test_overnight.py tests/test_overnight_model.py
