@@ -85,6 +85,8 @@ def build_parser() -> argparse.ArgumentParser:
     night.add_argument("--quiet-min", type=float, default=10.)
     night.add_argument("--event-min", type=float, default=2.)
     night.add_argument("--merge-gap", type=float, default=1.)
+    night.add_argument("--model-dir", type=Path,
+                       help="Optional OWN trusted local ICSD SVM model directory")
 
     return parser
 
@@ -98,6 +100,9 @@ def main() -> None:
         result = analyze_overnight(
             args.audio, args.out, quiet_min_seconds=args.quiet_min,
             event_min_seconds=args.event_min, merge_gap_seconds=args.merge_gap)
+        if args.model_dir:
+            from .overnight_model import predict_overnight
+            result = predict_overnight(args.audio, args.out, args.model_dir)
         print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
