@@ -86,3 +86,23 @@ def test_rejects_output_inside_restricted_source(tmp_path):
     _setup(root)
     with pytest.raises(ValueError, match="outside"):
         convert_icsd_test(root, root / "output")
+
+
+def test_refuses_exact_test_train_overlap(tmp_path):
+    root = tmp_path / "Dataset"
+    _setup(root)
+    training = root / "audio/train/real_strong_train"
+    training.mkdir(parents=True)
+    (training / "same_recording.wav").write_bytes(
+        (root / "audio/test/real_strong_test/sample.wav").read_bytes())
+    with pytest.raises(ValueError, match="exact copy"):
+        convert_icsd_test(root, tmp_path / "PRIVATE")
+
+
+def test_refuses_reusing_frozen_test_manifest(tmp_path):
+    root = tmp_path / "Dataset"
+    _setup(root)
+    output = tmp_path / "PRIVATE"
+    convert_icsd_test(root, output, assume_exhaustive=True)
+    with pytest.raises(FileExistsError, match="overwrite"):
+        convert_icsd_test(root, output, assume_exhaustive=True)
