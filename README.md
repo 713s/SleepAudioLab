@@ -148,3 +148,17 @@ The experiments are designed to answer four concrete questions:
 ## License
 
 A license has not yet been selected. Until one is added, the repository is publicly viewable but no open-source license is granted automatically.
+
+## Real snore acoustics experiment (public CC0 sample)
+
+The repository includes `data/samples/snoring_cc0.ogg`, a freely reusable snoring recording from Wikimedia Commons. The third mathematics lesson is [Snore acoustics](docs/mathematics/03_snore_acoustics.md).
+
+To compute the waveform/spectrogram, RMS, spectral centroid, low-frequency power ratio, spectral flatness, autocorrelation periodicity, and **candidate** acoustic events:
+
+```bash
+python -m sleep_audio.snore_analysis data/samples/snoring_cc0.ogg --out reports/public_snore
+```
+
+Outputs include `analysis.png`, `summary.json`, `frame_features.csv`, `events.csv`, and `quiet_intervals.csv`. An automatically generated reproducible report for this public recording is available in [examples/public_snore_analysis](examples/public_snore_analysis) after the corresponding GitHub Action finishes.
+
+**Important:** these are heuristic, unlabeled sound candidates. High energy does not prove snoring, silence does not prove apnea, and the audio is not a validated medical benchmark.
