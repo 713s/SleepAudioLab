@@ -238,8 +238,7 @@ It processes audio in bounded chunks rather than loading the full recording.
 
 **What it does not yet infer:** verified snore episode duration, apnea, gasps,
 or clinically meaningful breathing pauses. Energy-based bursts are called
-`candidate_acoustic_activity` for this reason. The ICSD baseline remains
-available for subsequent optional model-assisted detection.
+`candidate_acoustic_activity` for this reason. The ICSD SVM may now be enabled for optional local model-assisted snore candidate detection with `--model-dir models/icsd-strong`, writing separate model prediction and hourly candidate CSVs. These remain unverified estimates.
 
 Advanced mathematical representation research (path signatures, rough paths,
 low-regularity methods) follows the original usable audio/reporting milestone,
