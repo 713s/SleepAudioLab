@@ -91,3 +91,13 @@ Integrate the locally trained ICSD classifier as a *selectable* detector
 with matching one-second audio and feature contracts; then compare outputs
 against manually labeled portions of the user's own recordings. Only after
 that should the report claim model-estimated `snore_candidate_seconds`.
+
+## Optional frozen ICSD SVM for snore candidates
+
+After training the ICSD strong-label SVM locally, run:
+
+    sleep-audio overnight /path/to/night.wav --out reports/my-night-model --model-dir models/icsd-strong
+
+This adds model_frame_predictions.csv (one-second labels), model_snore_candidates.csv (candidate event intervals) and model_hourly.csv (candidate seconds per hour). The heuristic acoustic activity output stays separate.
+
+The model is not clinically validated and may not generalize to your microphone or sleeping environment. Review samples manually before treating the outputs as snoring estimates. Never treat quiet audio as proven apnea, or acoustic activity as confirmed snoring. Only load your OWN trusted local joblib models: untrusted joblib/pickle files may execute arbitrary code. Model inference is optional; the original signal-analysis report works without any classifier.
