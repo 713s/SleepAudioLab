@@ -108,7 +108,7 @@ def _plot(starts, rms, spec, threshold, events, out):
     stride = max(1, math.ceil(len(starts) / max_columns))
     t = starts[::stride] / 3600.
     # For long recordings compress spectra by maximum dB in each column.
-    matrix = np.stack([spec[i:i+stride].max(axis=0)
+    matrix = np.stack([np.max(spec[i:i+stride], axis=0)
                        for i in range(0, len(starts), stride)], axis=1)
     matrix -= np.max(matrix)
     fig, axes = plt.subplots(2, 1, figsize=(14, 7), sharex=True)
