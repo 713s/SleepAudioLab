@@ -7,6 +7,8 @@ on:
       - "src/sleep_audio/classical_classifier.py"
       - "scripts/import_khan_dataset.py"
       - "tests/test_classical_classifier.py"
+      - "tests/test_external_evaluation.py"
+      - "src/sleep_audio/evaluate_external.py"
       - ".github/workflows/v03-classical-baseline.yml"
 
 permissions:
@@ -49,11 +51,23 @@ jobs:
         run: |
           python scripts/import_khan_dataset.py "$KHAN_AUDIO_ROOT" --out data/processed/khan_manifest.csv
           python -m sleep_audio.classical_classifier data/processed/khan_manifest.csv \
-            --out reports/v03 --allow-clip-split
+            --out reports/v03 --allow-clip-split --save-models --dataset-id khan-snoring
       - name: Upload metrics without redistributing third-party audio
         uses: actions/upload-artifact@v4
         with:
           name: v03-khan-exploratory-metrics
           path: reports/v03/evaluation.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload frozen models, config and test metrics (no audio)
+        uses: actions/upload-artifact@v4
+        with:
+          name: v031-khan-frozen-models
+          path: |
+            reports/v03/svm_rbf.joblib
+            reports/v03/random_forest.joblib
+            reports/v03/model_metadata.json
+            reports/v03/evaluation.json
           if-no-files-found: error
           retention-days: 30
