@@ -202,3 +202,18 @@ python -m sleep_audio.evaluate_external \
 ```
 
 The assumption of exhaustive strong annotations must be checked before enabling negative-label creation. Test-set isolation from ICSD training/validation is enforced by fixed paths and a byte-identical recording overlap audit, but the authors cite **Khan Snoring among their source collections**. A further source-level fingerprint audit is required before calling the evaluation independent of Khan training.
+
+## v0.3.3 — ICSD local training (restricted data)
+
+ICSD officially labeled **strong train + synthetic train** and **strong validation** now have a local converter and a separate trainer. Run from your authorized Linux computer (no gated ICSD content is uploaded):
+
+```bash
+python -m sleep_audio.icsd_training_adapter data/icsd/Dataset \\
+  --out data/processed/icsd/strong-v1 --assume-exhaustive
+python -m sleep_audio.train_icsd \\
+  --train data/processed/icsd/strong-v1/train_manifest.csv \\
+  --validation data/processed/icsd/strong-v1/validation_manifest.csv \\
+  --out models/icsd-strong
+```
+
+The `--assume-exhaustive` option is only appropriate when unannotated intervals can legitimately be treated as negatives; otherwise inspect annotation completeness before training. The weak label split is not used for one-second event labels, and the official test split is untouched. See [ICSD local training guide](docs/icsd_local_training.md). This classical 33-feature baseline is intended as a comparator for future rough path signature experiments.
