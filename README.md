@@ -187,3 +187,18 @@ python -m sleep_audio.evaluate_external data/processed/external_manifest.csv \
 [Full guide to frozen models, independent evaluation and ICSD access restrictions](docs/v031_external_evaluation_and_icsd.md). You may download the successfully trained frozen model archive from [GitHub Actions](https://github.com/713s/SleepAudioLab/actions/workflows/v03-classical-baseline.yml), under **Artifacts** in a successful run. Model files and restricted training audio are not committed to the public Git tree. Only load trusted model artifacts: `joblib` uses pickle under the hood.
 
 **ICSD caution:** although ICSD is labeled, its actual access agreement prohibits unauthorized redistribution of originals **and derivatives**. Keep local audio, event labels, clips, feature files, and ICSD-derived models off public GitHub unless permission is secured.
+
+## v0.3.2 — gated ICSD test adapter
+
+[ICSD real-strong test adapter guide](docs/v032_icsd_test_adapter.md) documents how to convert **authorized, privately stored** strong test annotations into one-second audio clips and a `path,label,source_id` manifest for the v0.3.1 frozen-model evaluator. The code is [`src/sleep_audio/icsd_adapter.py`](src/sleep_audio/icsd_adapter.py). The public GitHub repo contains **only adapter source code, documentation and synthetic tests**, never gated ICSD audio or annotations.
+
+```bash
+python -m sleep_audio.icsd_adapter data/icsd/Dataset \
+  --out data/processed/icsd/test --assume-exhaustive
+python -m sleep_audio.evaluate_external \
+  data/processed/icsd/test/test_manifest.csv \
+  --models models/khan-v031 --dataset-id icsd-real-strong-test \
+  --out reports/icsd-test-v031
+```
+
+The assumption of exhaustive strong annotations must be checked before enabling negative-label creation. Test-set isolation from ICSD training/validation is enforced by fixed paths and a byte-identical recording overlap audit, but the authors cite **Khan Snoring among their source collections**. A further source-level fingerprint audit is required before calling the evaluation independent of Khan training.
