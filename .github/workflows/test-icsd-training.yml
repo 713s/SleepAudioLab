@@ -1,0 +1,25 @@
+name: ICSD strong train/validation adapters
+
+on:
+  push:
+    paths:
+      - "src/sleep_audio/icsd_training_adapter.py"
+      - "src/sleep_audio/train_icsd.py"
+      - "tests/test_icsd_training.py"
+      - ".github/workflows/test-icsd-training.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e '.[dev]'
+      - name: Validate ICSD strong label conversion and training
+        run: pytest -q tests/test_icsd_training.py tests/test_icsd_adapter.py tests/test_external_evaluation.py
