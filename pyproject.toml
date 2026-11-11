@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sleep-audio-lab"
-version = "0.3.1"
+version = "0.3.3"
 description = "Offline-first sleep audio analysis and DSP learning toolkit"
 readme = "README.md"
 requires-python = ">=3.10"
