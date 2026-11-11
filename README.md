@@ -162,3 +162,14 @@ python -m sleep_audio.snore_analysis data/samples/snoring_cc0.ogg --out reports/
 Outputs include `analysis.png`, `summary.json`, `frame_features.csv`, `events.csv`, and `quiet_intervals.csv`. An automatically generated reproducible report for this public recording is available in [examples/public_snore_analysis](examples/public_snore_analysis) after the corresponding GitHub Action finishes.
 
 **Important:** these are heuristic, unlabeled sound candidates. High energy does not prove snoring, silence does not prove apnea, and the audio is not a validated medical benchmark.
+
+## v0.3 — classical snore classification with labeled data
+
+We use a dedicated public clip-level snoring dataset for the **training experiment**, not the 17 acoustic bursts in the initial one-minute recording. A reproducible, **non-deep-learning** baseline compares a 33-feature vector (RMS, spectral descriptors, autocorrelation and 13 MFCC means/standard deviations) using SVM and random forest. The evaluation reports precision, recall, F1 and confusion matrices.
+
+- [Labeled dataset license/provenance audit](docs/datasets_v03.md)
+- [Classifier implementation](src/sleep_audio/classical_classifier.py)
+- [Khan dataset manifest importer](scripts/import_khan_dataset.py)
+- [Automated baseline with ephemeral Kaggle download](.github/workflows/v03-classical-baseline.yml)
+
+Training audio is **not mirrored or committed**: it is downloaded from its source only into the temporary GitHub Actions runner. Actions uploads `evaluation.json` as a short-lived artifact. Original recording/subject IDs are unavailable for the default Khan clips, so the exploratory random clip split **must not** be reported as a trustworthy subject-independent test. To use a source-disjoint test, supply verified original recording IDs through the manifest's `source_id` column.
