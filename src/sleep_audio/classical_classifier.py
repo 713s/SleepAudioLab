@@ -216,7 +216,7 @@ def train_and_evaluate(manifest: str | Path, output: str | Path, *,
                       "recording provenance may be unknown."),
         }
         (output / "model_metadata.json").write_text(
-            json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
+            json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     (output / "evaluation.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
 
