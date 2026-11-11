@@ -8,6 +8,11 @@ import argparse
 import csv
 import json
 import math
+import hashlib
+import platform
+
+import joblib
+import sklearn
 from pathlib import Path
 
 import numpy as np
@@ -129,7 +134,8 @@ def read_manifest(manifest: str | Path):
 
 
 def train_and_evaluate(manifest: str | Path, output: str | Path, *,
-                       allow_clip_split: bool = False, seed: int = 42):
+                       allow_clip_split: bool = False, seed: int = 42,
+                       save_models: bool = False, dataset_id: str = "khan-snoring"):
     records = read_manifest(manifest)
     has_groups = all(group for _, _, group in records)
     if not has_groups and not allow_clip_split:
@@ -158,6 +164,8 @@ def train_and_evaluate(manifest: str | Path, output: str | Path, *,
     }
     for name, model in models.items():
         model.fit(x[train], y[train])
+        if save_models:
+            joblib.dump(model, output / f"{name}.joblib")
         prediction = model.predict(x[test])
         precision, recall, f1, support = precision_recall_fscore_support(
             y[test], prediction, labels=[1], zero_division=0)
@@ -182,6 +190,33 @@ def train_and_evaluate(manifest: str | Path, output: str | Path, *,
             "by repeated source recordings or correlated audio segments.",
         "models": results,
     }
+    if save_models:
+        # Freeze the exact fitted pipeline and its feature extraction contract.
+        # Hashes allow detecting exact audio reuse across datasets; no audio is saved.
+        train_hashes = sorted({
+            hashlib.sha256(records[int(i)][0].read_bytes()).hexdigest()
+            for i in train
+        })
+        metadata = {
+            "schema_version": 1,
+            "dataset_id": dataset_id,
+            "source_manifest": str(Path(manifest).name),
+            "split": report["split"],
+            "seed": seed,
+            "sample_rate_hz": SAMPLE_RATE,
+            "clip_duration_seconds": 1.0,
+            "feature_version": "v0.3-33-mfcc-htk-mel",
+            "feature_dimension": int(x.shape[1]),
+            "class_labels": {"0": "non_snore", "1": "snore"},
+            "models": sorted(models),
+            "training_audio_sha256": train_hashes,
+            "python_version": platform.python_version(),
+            "scikit_learn_version": sklearn.__version__,
+            "notes": ("This is a clip-level exploratory baseline; training "
+                      "recording provenance may be unknown."),
+        }
+        (output / "model_metadata.json").write_text(
+            json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
     (output / "evaluation.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
 
@@ -191,9 +226,14 @@ def main():
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--out", type=Path, default=Path("reports/v03"))
     parser.add_argument("--allow-clip-split", action="store_true")
+    parser.add_argument("--save-models", action="store_true",
+                        help="Save frozen joblib models and metadata for later inference")
+    parser.add_argument("--dataset-id", default="khan-snoring",
+                        help="Stable source dataset identifier")
     args = parser.parse_args()
     print(json.dumps(train_and_evaluate(
-        args.manifest, args.out, allow_clip_split=args.allow_clip_split), indent=2))
+        args.manifest, args.out, allow_clip_split=args.allow_clip_split,
+        save_models=args.save_models, dataset_id=args.dataset_id), indent=2))
 
 
 if __name__ == "__main__":
