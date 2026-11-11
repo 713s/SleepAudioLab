@@ -1,0 +1,25 @@
+name: Overnight report end-to-end tests
+
+on:
+  push:
+    paths:
+      - "src/sleep_audio/overnight.py"
+      - "src/sleep_audio/cli.py"
+      - "tests/test_overnight.py"
+      - ".github/workflows/test-overnight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-night:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e '.[dev]'
+      - name: Test end-to-end night report using generated WAV only
+        run: pytest -q tests/test_overnight.py
