@@ -92,6 +92,26 @@ def convert_icsd_test(dataset_root: str | Path, out_dir: str | Path, *,
     unannotated = sorted(set(all_audio) - set(annotations))
     if unannotated:
         raise ValueError(f"Test audio without TSV annotation: {unannotated[:5]}")
+    # Audit exact-byte recording overlap against official train and validation
+    # subtrees without loading their samples, annotations, or using them for fit.
+    train_val = [root / "audio" / split for split in ("train", "validation")]
+    protected_hashes = {}
+    for subtree in train_val:
+        if subtree.is_dir():
+            for other in subtree.rglob("*"):
+                if other.is_file() and other.suffix.lower() in {".wav", ".flac", ".ogg"}:
+                    digest = hashlib.sha256(other.read_bytes()).hexdigest()
+                    protected_hashes[digest] = str(other.relative_to(root))
+    test_hashes = {hashlib.sha256(source.read_bytes()).hexdigest()
+                   for source in all_audio.values()}
+    intersection = sorted(test_hashes.intersection(protected_hashes))
+    if intersection:
+        raise ValueError(
+            f"Official test audio has {len(intersection)} exact copy/copies in "
+            "training or validation audio; refusing to export")
+    if (out / "test_manifest.csv").exists():
+        raise FileExistsError(
+            "Refusing to overwrite an existing test manifest; choose a new output directory")
     rows = []
     counts = {"positive": 0, "negative": 0, "ambiguous": 0,
               "unused_tail": 0, "files": 0}
@@ -146,6 +166,8 @@ def convert_icsd_test(dataset_root: str | Path, out_dir: str | Path, *,
         "assume_exhaustive": assume_exhaustive,
         "manifest": str(manifest),
         "counts": counts,
+        "checked_train_validation_recording_hashes": len(protected_hashes),
+        "exact_cross_split_audio_overlap": 0,
         "warning": ("Restricted ICSD-derived clips and manifest: keep private. "
                     "No clinical diagnosis. Negative windows require explicit "
                     "exhaustiveness assumption; never relabel weak data."),
