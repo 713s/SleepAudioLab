@@ -1,0 +1,30 @@
+name: Import CC0 snore sample
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/import-public-snore.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download CC0 recording
+        run: python3 scripts/fetch_public_snore_sample.py
+      - name: Commit public sample
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/samples/snoring_cc0.ogg
+          if git diff --cached --quiet; then
+            echo "Sample already current"
+          else
+            git commit -m "Add CC0 public snoring test audio"
+            git push
+          fi
