@@ -18,3 +18,20 @@ reports/
 .vscode/
 .idea/
 .DS_Store
+
+# Frozen models, licensed external datasets, and private analysis
+models/
+data/external/
+data/icsd/
+data/downloads/
+*.joblib
+*.pkl
+*.pickle
+*.zip
+*.tar
+*.tar.gz
+*.parquet
+*.tsv
+*.jsonl
+.env
+.env.*
