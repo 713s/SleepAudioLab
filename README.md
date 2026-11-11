@@ -217,3 +217,30 @@ python -m sleep_audio.train_icsd \\
 ```
 
 The `--assume-exhaustive` option is only appropriate when unannotated intervals can legitimately be treated as negatives; otherwise inspect annotation completeness before training. The weak label split is not used for one-second event labels, and the official test split is untouched. See [ICSD local training guide](docs/icsd_local_training.md). This classical 33-feature baseline is intended as a comparator for future rough path signature experiments.
+
+
+## First usable overnight report — `sleep-audio overnight`
+
+The original goal is practical, interpretable overnight audio analysis; training a classifier is an optional improvement, not a prerequisite. The first end-to-end streaming command is:
+
+```bash
+sleep-audio overnight /path/to/night.wav --out reports/night
+```
+
+Open `reports/night/report.html` locally. The command also writes an
+all-night acoustic overview, frame feature table, candidate activity events,
+long quiet intervals, and hourly acoustic activity counts and seconds.
+See [overnight usage and limitations](docs/overnight_usage.md).
+
+**What it currently measures:** RMS, peak, spectral centroid, relative
+low-frequency power, and spectral flatness with one-second windows.
+It processes audio in bounded chunks rather than loading the full recording.
+
+**What it does not yet infer:** verified snore episode duration, apnea, gasps,
+or clinically meaningful breathing pauses. Energy-based bursts are called
+`candidate_acoustic_activity` for this reason. The ICSD baseline remains
+available for subsequent optional model-assisted detection.
+
+Advanced mathematical representation research (path signatures, rough paths,
+low-regularity methods) follows the original usable audio/reporting milestone,
+rather than replacing it.
