@@ -1,0 +1,15 @@
+{
+  "source": "snoring_cc0.ogg",
+  "sample_rate_hz": 44100,
+  "duration_seconds": 59.925,
+  "rms": 0.011896,
+  "adaptive_rms_threshold": 0.004699,
+  "candidate_burst_count": 17,
+  "candidate_burst_total_seconds": 15.2,
+  "quiet_interval_count_3s": 3,
+  "dominant_burst_autocorrelation": {
+    "peak_correlation": 0.28749784462318034,
+    "peak_frequency_hz": 56.75675675675676
+  },
+  "interpretation": "Exploratory acoustic candidate detection only. Quiet audio is not apnea and burst events are not clinically verified snoring."
+}
