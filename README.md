@@ -173,3 +173,17 @@ We use a dedicated public clip-level snoring dataset for the **training experime
 - [Automated baseline with ephemeral Kaggle download](.github/workflows/v03-classical-baseline.yml)
 
 Training audio is **not mirrored or committed**: it is downloaded from its source only into the temporary GitHub Actions runner. Actions uploads `evaluation.json` as a short-lived artifact. Original recording/subject IDs are unavailable for the default Khan clips, so the exploratory random clip split **must not** be reported as a trustworthy subject-independent test. To use a source-disjoint test, supply verified original recording IDs through the manifest's `source_id` column.
+
+## v0.3.1 — frozen models and external evaluation (no retraining)
+
+The Kaggle/Khan SVM and random forest can be saved as complete fitted `joblib` models with the exact feature contract and train-file checksums. For a separate, labeled 1-second-audio manifest, run the **inference-only** evaluator:
+
+```bash
+python -m sleep_audio.evaluate_external data/processed/external_manifest.csv \
+  --models models/khan-v031 --dataset-id independent-dataset-name \
+  --out reports/external
+```
+
+[Full guide to frozen models, independent evaluation and ICSD access restrictions](docs/v031_external_evaluation_and_icsd.md). You may download the successfully trained frozen model archive from [GitHub Actions](https://github.com/713s/SleepAudioLab/actions/workflows/v03-classical-baseline.yml), under **Artifacts** in a successful run. Model files and restricted training audio are not committed to the public Git tree. Only load trusted model artifacts: `joblib` uses pickle under the hood.
+
+**ICSD caution:** although ICSD is labeled, its actual access agreement prohibits unauthorized redistribution of originals **and derivatives**. Keep local audio, event labels, clips, feature files, and ICSD-derived models off public GitHub unless permission is secured.
